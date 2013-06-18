@@ -3,7 +3,7 @@ pkg_send_mail
 
 Allows you to send mail with attachment to multiple mail addresses.
 
-This package wraps the Oracle utl_mail package and create a basic interface for sending mail.
+This package wraps the Oracle Utl_Smtp package and create a basic interface for sending mail.
 
 Execute
 -------
