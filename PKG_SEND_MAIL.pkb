@@ -55,18 +55,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_SEND_MAIL AS
     utl_smtp.open_data(conn);
     
   -- Message info
-    utl_smtp.write_data(conn, 'To: ' || v_final_to_name || UTL_TCP.crlf);
-    utl_smtp.write_DATA(conn, 'Cc: ' || v_final_cc_name || UTL_TCP.crlf);
-    utl_smtp.write_data(conn, 'Date: ' || to_char(sysdate, 'Dy, DD Mon YYYY hh24:mi:ss') || UTL_TCP.crlf);
-    utl_smtp.write_data(conn, 'From: ' || v_from_name || UTL_TCP.crlf);
-    utl_smtp.write_data(conn, 'Subject: ' || v_subject || UTL_TCP.crlf);
-    utl_smtp.write_data(conn, 'MIME-Version: 1.0' || UTL_TCP.crlf);
-    utl_smtp.write_data(conn, 'Content-Type: multipart/mixed; boundary="' || v_boundry || '"' || UTL_TCP.crlf || UTL_TCP.crlf);
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('To: ' || v_final_to_name || UTL_TCP.crlf));
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('Cc: ' || v_final_cc_name || UTL_TCP.crlf));
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('Date: ' || to_char(sysdate, 'Dy, DD Mon YYYY hh24:mi:ss') || UTL_TCP.crlf));
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('From: ' || v_from_name || UTL_TCP.crlf));
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('Subject: ' || v_subject || UTL_TCP.crlf));
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('MIME-Version: 1.0' || UTL_TCP.crlf));
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('Content-Type: multipart/mixed; boundary="' || v_boundry || '"' || UTL_TCP.crlf || UTL_TCP.crlf));
 
   -- Message body
-    utl_smtp.write_data(conn, '--' || v_boundry || UTL_TCP.crlf);
-    utl_smtp.write_data(conn, 'Content-Type: ' || v_message_type || UTL_TCP.crlf || UTL_TCP.crlf);
-    utl_smtp.write_data(conn, v_message_body || UTL_TCP.crlf);
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('--' || v_boundry || UTL_TCP.crlf));
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('Content-Type: ' || v_message_type || UTL_TCP.crlf || UTL_TCP.crlf));
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw(v_message_body || UTL_TCP.crlf));
 
   -- Attachment Part
     IF attachments IS NOT NULL 
@@ -74,24 +74,24 @@ CREATE OR REPLACE PACKAGE BODY PKG_SEND_MAIL AS
         FOR i IN attachments.FIRST .. attachments.LAST
         LOOP
         -- Attach info
-            utl_smtp.write_data(conn, '--' || v_boundry || UTL_TCP.crlf);
-            utl_smtp.write_data(conn, 'Content-Type: ' || attachments(i).data_type 
-                                || ' name="'|| attachments(i).attach_name || '"' || UTL_TCP.crlf);
-            utl_smtp.write_data(conn, 'Content-Disposition: attachment; filename="'
-                                || attachments(i).attach_name || '"' || UTL_TCP.crlf || UTL_TCP.crlf);
+            utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('--' || v_boundry || UTL_TCP.crlf));
+            utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('Content-Type: ' || attachments(i).data_type 
+                                || ' name="'|| attachments(i).attach_name || '"' || UTL_TCP.crlf));
+            utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('Content-Disposition: attachment; filename="'
+                                || attachments(i).attach_name || '"' || UTL_TCP.crlf || UTL_TCP.crlf));
 
         -- Attach body
             n_offset := 1;
             WHILE n_offset < dbms_lob.getlength(attachments(i).attach_content)
             LOOP
-                utl_smtp.write_data(conn, dbms_lob.substr(attachments(i).attach_content, n_amount, n_offset));
+                utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw(dbms_lob.substr(attachments(i).attach_content, n_amount, n_offset)));
                 n_offset := n_offset + n_amount;
             END LOOP;
-            utl_smtp.write_data(conn, '' || UTL_TCP.crlf);
+            utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('' || UTL_TCP.crlf));
         END LOOP;
     END IF;
   -- Last boundry
-    utl_smtp.write_data(conn, '--' || v_boundry || '--' || UTL_TCP.crlf);
+    utl_smtp.write_raw_data(conn, utl_raw.cast_to_raw('--' || v_boundry || '--' || UTL_TCP.crlf));
 
   -- Close data
     utl_smtp.close_data(conn);
