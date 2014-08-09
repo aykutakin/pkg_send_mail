@@ -14,7 +14,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SEND_MAIL AS
         attachments    array_attachments DEFAULT NULL,
         v_message_type VARCHAR2 DEFAULT 'text/plain'
     ) AS
-    v_smtp_server       VARCHAR2(14)  := '10.200.123.135';
+    v_smtp_server       VARCHAR2(14)  := 'XX.YOUR.SMTP.SERVER';
     n_smtp_server_port  NUMBER        := 25;
     conn                utl_smtp.connection;
     v_boundry           VARCHAR2(20)  := 'SECBOUND';
